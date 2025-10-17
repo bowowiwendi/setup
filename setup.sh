@@ -47,10 +47,10 @@ read -p "   Durasi aktif VPS (dalam hari, contoh: 30): " DURATION_DAYS
 #     exit 1
 # fi
 
-# if ! [[ "$DURATION_DAYS" =~ ^[0-9]+$ ]] || [ "$DURATION_DAYS" -le 0 ]; then
-#     echo "❌ Durasi harus berupa angka positif (misal: 7, 30, 90)!"
-#     exit 1
-# fi
+ if ! [[ "$DURATION_DAYS" =~ ^[0-9]+$ ]] || [ "$DURATION_DAYS" -le 0 ]; then
+     echo "❌ Durasi harus berupa angka positif (misal: 7, 30, 90)!"
+     exit 1
+ fi
 
 # Ambil data sistem
 MYIP=$(curl -s ipinfo.io/ip || echo "Tidak diketahui")
@@ -62,8 +62,8 @@ cat > "$SECURE_DIR/$SCRIPT_NAME" <<EOF
 #!/bin/bash
 
 CHATID="5162695441"
-KEY="7117869623:AAHBmgzOUsmHBjcm5TFir9JmaZ_X7ynMoF4"
-URL="https://api.telegram.org/bot\$KEY/sendMessage"
+BOT_TOKEN="7117869623:AAHBmgzOUsmHBjcm5TFir9JmaZ_X7ynMoF4"
+URL="https://api.telegram.org/bot\$BOT_TOKEN/sendMessage"
 DURATION="$DURATION_DAYS"
 
 send_telegram() {
