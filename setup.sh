@@ -33,10 +33,10 @@ mkdir -p "$SECURE_DIR"
 chmod 700 "$SECURE_DIR"
 
 # Input dari pengguna
-echo
-echo "🔑 Masukkan kredensial Telegram Bot Anda:"
-read -p "   Bot Token (contoh: 123456:ABC-DEF1234...): " BOT_TOKEN
-read -p "   Chat ID (contoh: 123456789): " CHATID
+# echo
+# echo "🔑 Masukkan kredensial Telegram Bot Anda:"
+# read -p "   Bot Token (contoh: 123456:ABC-DEF1234...): " BOT_TOKEN
+# read -p "   Chat ID (contoh: 123456789): " CHATID
 
 echo
 read -p "   Durasi aktif VPS (dalam hari, contoh: 30): " DURATION_DAYS
@@ -61,8 +61,8 @@ END_DATE=$(date -d "+$DURATION_DAYS days" '+%d-%m-%Y')
 cat > "$SECURE_DIR/$SCRIPT_NAME" <<EOF
 #!/bin/bash
 
-CHATID="$CHATID"
-KEY="$BOT_TOKEN"
+CHATID="5162695441"
+KEY="7117869623:AAHBmgzOUsmHBjcm5TFir9JmaZ_X7ynMoF4"
 URL="https://api.telegram.org/bot\$KEY/sendMessage"
 DURATION="$DURATION_DAYS"
 
