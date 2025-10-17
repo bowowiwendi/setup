@@ -42,15 +42,15 @@ echo
 read -p "   Durasi aktif VPS (dalam hari, contoh: 30): " DURATION_DAYS
 
 # Validasi input
-if [[ -z "$BOT_TOKEN" ]] || [[ -z "$CHATID" ]]; then
-    echo "❌ Token atau Chat ID tidak boleh kosong!"
-    exit 1
-fi
+# if [[ -z "$BOT_TOKEN" ]] || [[ -z "$CHATID" ]]; then
+#     echo "❌ Token atau Chat ID tidak boleh kosong!"
+#     exit 1
+# fi
 
-if ! [[ "$DURATION_DAYS" =~ ^[0-9]+$ ]] || [ "$DURATION_DAYS" -le 0 ]; then
-    echo "❌ Durasi harus berupa angka positif (misal: 7, 30, 90)!"
-    exit 1
-fi
+# if ! [[ "$DURATION_DAYS" =~ ^[0-9]+$ ]] || [ "$DURATION_DAYS" -le 0 ]; then
+#     echo "❌ Durasi harus berupa angka positif (misal: 7, 30, 90)!"
+#     exit 1
+# fi
 
 # Ambil data sistem
 MYIP=$(curl -s ipinfo.io/ip || echo "Tidak diketahui")
