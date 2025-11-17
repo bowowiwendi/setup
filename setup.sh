@@ -14,6 +14,31 @@ NC='\e[0m'
 red='\e[1;31m'
 green='\e[0;32m'
 
+# --- Fungsi Helper ---
+function print_ok() {
+    echo -e "${OK} ${BLUE} $1 ${FONT}"
+}
+
+function print_install() {
+    echo -e "${green} =============================== ${FONT}"
+    echo -e "${YELLOW} # $1 ${FONT}"
+    echo -e "${green} =============================== ${FONT}"
+    sleep 1
+}
+
+function print_error() {
+    echo -e "${EROR} ${REDBG} $1 ${FONT}"
+}
+
+function print_success() {
+    if [[ 0 -eq $? ]]; then
+        echo -e "${green} =============================== ${FONT}"
+        echo -e "${Green} # $1 berhasil dipasang${FONT}"
+        echo -e "${green} =============================== ${FONT}"
+        sleep 2
+    fi
+}
+
 # Cek argumen domain
 if [ -n "$1" ]; then
     DOMAIN="$1"
@@ -115,30 +140,6 @@ secs_to_human() {
 echo "Installation time : $((${1} / 3600)) hours $(((${1} / 60) % 60)) minute's $((${1} % 60)) seconds"
 }
 
-# --- Fungsi Helper ---
-function print_ok() {
-    echo -e "${OK} ${BLUE} $1 ${FONT}"
-}
-
-function print_install() {
-    echo -e "${green} =============================== ${FONT}"
-    echo -e "${YELLOW} # $1 ${FONT}"
-    echo -e "${green} =============================== ${FONT}"
-    sleep 1
-}
-
-function print_error() {
-    echo -e "${EROR} ${REDBG} $1 ${FONT}"
-}
-
-function print_success() {
-    if [[ 0 -eq $? ]]; then
-        echo -e "${green} =============================== ${FONT}"
-        echo -e "${Green} # $1 berhasil dipasang${FONT}"
-        echo -e "${green} =============================== ${FONT}"
-        sleep 2
-    fi
-}
 
 # --- FUNGSI pasang_domain DIMODIFIKASI ---
 function pasang_domain() {
