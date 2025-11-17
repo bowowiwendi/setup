@@ -149,6 +149,7 @@ function pasang_domain() {
     if [ -n "$DOMAIN" ]; then
         print_ok "Menggunakan domain dari argumen: $DOMAIN"
         mkdir -p /etc/xray
+        echo "IP=" >> /var/lib/kyt/ipvps.conf
         echo "$DOMAIN" > /etc/xray/domain
         echo "$DOMAIN" > /root/domain
         echo "$DOMAIN" > /root/scdomain
@@ -184,6 +185,7 @@ function pasang_domain() {
         read -p "SUBDOMAIN :  " DOMAIN
         DOMAIN="$DOMAIN"
         mkdir -p /etc/xray
+        echo "IP=" >> /var/lib/kyt/ipvps.conf
         echo "$DOMAIN" > /etc/xray/domain
         echo "$DOMAIN" > /root/domain
         echo "$DOMAIN" > /root/scdomain
@@ -297,8 +299,8 @@ function base_package() {
     print_ok "Menginstal paket utama..."
     sudo apt install -y speedtest-cli vnstat libnss3-dev libnspr4-dev pkg-config libpam0g-dev libcap-ng-dev libcap-ng-utils libselinux1-dev libcurl4-nss-dev flex bison make libnss3-tools libevent-dev bc rsyslog dos2unix zlib1g-dev libssl-dev libsqlite3-dev sed dirmngr libxml-parser-perl build-essential gcc g++ python3 htop lsof tar wget curl ruby zip unzip p7zip-full python3-pip libc6 util-linux build-essential ca-certificates bsd-mailx gcc shc make cmake git screen socat xz-utils apt-transport-https dnsutils cron bash-completion ntpdate chrony jq easy-rsa || print_error "Gagal menginstal paket utama."
     sudo apt install -y netfilter-persistent
-    print_ok "Melewati instalasi msmtp sesuai permintaan"
     sudo apt install -y msmtp-mta || print_ok "msmtp-mta dilewati"
+    sudo apt install -y openssh-server
     print_success "Packet Yang Dibutuhkan"
     print_ok "base_package SELESAI"
 }
@@ -323,8 +325,8 @@ function pasang_ssl() {
     print_ok "Menerbitkan sertifikat SSL..."
     /root/.acme.sh/acme.sh --issue -d $domain --standalone -k ec-256 || print_error "Gagal menerbitkan sertifikat SSL untuk $domain."
     ~/.acme.sh/acme.sh --installcert -d $domain --fullchainpath /etc/xray/xray.crt --keypath /etc/xray/xray.key --ecc || print_error "Gagal menginstal sertifikat SSL untuk $domain."
-    chmod 644 /etc/xray/xray.key
-    print_ok "Permission key diatur ke 644."
+    chmod +x /etc/xray/xray.key
+    print_ok "Permission key diatur ke +x."
     print_success "SSL Certificate"
     print_ok "pasang_ssl SELESAI"
 }
@@ -437,11 +439,8 @@ function setup_ssh(){
     print_install "MENJALANKAN ssh"
     print_ok "Mengunduh konfigurasi common-password..."
     wget -O /etc/pam.d/common-password "${REPO}files/password" || print_error "Gagal mengunduh common-password."
-    chmod 644 /etc/pam.d/common-password
-    print_ok "Permission common-password diatur ke 644."
+    chmod +x /etc/pam.d/common-password
     DEBIAN_FRONTEND=noninteractive dpkg-reconfigure keyboard-configuration || print_error "Gagal mengkonfigurasi keyboard secara non-interaktif."
-    print_ok "Melewati instalasi openssh-server sesuai permintaan"
-    apt install openssh-server || print_ok "openssh-server dilewati"
     debconf-set-selections <<<"keyboard-configuration keyboard-configuration/altgr select The default for the keyboard layout"
     debconf-set-selections <<<"keyboard-configuration keyboard-configuration/compose select No compose key"
     debconf-set-selections <<<"keyboard-configuration keyboard-configuration/ctrl_alt_bksp boolean false"
@@ -505,8 +504,8 @@ function ins_SSHD(){
     print_install "MENJALANKAN ins_SSHD"
     print_ok "Mengunduh konfigurasi sshd_config..."
     wget -q -O /etc/ssh/sshd_config "${REPO}files/sshd" || print_error "Gagal mengunduh sshd_config."
-    chmod 644 /etc/ssh/sshd_config
-    print_ok "Permission sshd_config diatur ke 644."
+    chmod +x /etc/ssh/sshd_config
+    print_ok "Permission sshd_config diatur ke +x."
     print_ok "Merestart layanan SSH..."
     systemctl restart ssh || print_error "Gagal merestart layanan SSH."
     print_success "SSHD"
@@ -520,8 +519,8 @@ function ins_dropbear(){
     apt install dropbear -y || print_error "Gagal menginstal Dropbear."
     print_ok "Mengunduh konfigurasi Dropbear..."
     wget -q -O /etc/default/dropbear "${REPO}cfg_conf_js/dropbear.conf" || print_error "Gagal mengunduh konfigurasi Dropbear."
-    chmod 644 /etc/default/dropbear
-    print_ok "Permission konfigurasi Dropbear diatur ke 644."
+    chmod +x /etc/default/dropbear
+    print_ok "Permission konfigurasi Dropbear diatur ke +x."
     print_ok "Merestart layanan Dropbear..."
     systemctl restart dropbear || print_error "Gagal merestart layanan Dropbear."
     print_success "Dropbear"
@@ -617,7 +616,7 @@ function ins_epro(){
     wget -O /etc/systemd/system/ws.service "${REPO}files/ws.service" || print_error "Gagal mengunduh ws.service."
     chmod +x /etc/systemd/system/ws.service
     chmod +x /usr/bin/ws
-    chmod 644 /usr/bin/tun.conf
+    chmod +x /usr/bin/tun.conf
     print_ok "Mengelola layanan ws..."
     systemctl disable ws || print_ok "Gagal mendisable layanan ws (mungkin belum aktif)."
     systemctl stop ws || print_ok "Gagal menghentikan layanan ws (mungkin belum berjalan)."
@@ -701,7 +700,7 @@ mesg n || true
 # Run menu on login
 menu
 EOF
-    chmod 644 /root/.profile
+    chmod +x /root/.profile
     print_ok ".profile root diperbarui."
     print_ok "Menambahkan cron job untuk backup..."
     (crontab -l 2>/dev/null; echo "0 0 * * * root bot-backup") | crontab - || print_error "Gagal menambahkan cron job backup."
@@ -837,10 +836,6 @@ EOF
     print_ok "udp_mini SELESAI"
 }
 
-function password_default() {
-    print_ok "Fungsi password_default dipanggil (kosong)."
-    :
-}
 
 function restart_system() {
     print_install "MENJALANKAN restart_system"
