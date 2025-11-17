@@ -940,21 +940,15 @@ TIMES=30
 function install(){
     print_install "MENJALANKAN FUNGSI INSTALL UTAMA"
     clear
-    # Setup domain paling awal
     pasang_domain
-    # Setup dasar sistem
     first_setup
     base_package
-    # Setup folder dan profil
     make_folder_xray
     profile
-    # Setup SSL dan web server
     pasang_ssl
     nginx_install
-    # Setup VPN dan tunneling
     install_xray
     setup_ssh
-    # Setup layanan jaringan
     ins_SSHD
     ins_dropbear
     ins_vnstat
@@ -962,11 +956,9 @@ function install(){
     ins_swab
     ins_Fail2ban
     ins_epro
-    # Setup menu dan restart
     menu
     ins_restart
     enable_services
-    # Setup notifikasi dan selesai
     restart_system
     print_ok "FUNGSI INSTALL UTAMA SELESAI"
 }
