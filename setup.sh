@@ -970,6 +970,7 @@ function install(){
     ins_epro
     menu
     ins_restart
+    backup
     enable_services
     restart_system
     print_ok "FUNGSI INSTALL UTAMA SELESAI"
