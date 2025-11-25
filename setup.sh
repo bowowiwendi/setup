@@ -150,7 +150,7 @@ function pasang_domain() {
     if [ -n "$DOMAIN" ]; then
         print_ok "Menggunakan domain dari argumen: $DOMAIN"
         mkdir -p /etc/xray
-        echo "IP=" >> /var/lib/kyt/ipvps.conf
+        echo "IP=" >> /var/lib/kyt/ipvps.conf 2>/dev/null
         echo "$DOMAIN" > /etc/xray/domain
         echo "$DOMAIN" > /root/domain
         echo "$DOMAIN" > /root/scdomain
@@ -186,7 +186,7 @@ function pasang_domain() {
         read -p "SUBDOMAIN :  " DOMAIN
         DOMAIN="$DOMAIN"
         mkdir -p /etc/xray
-        echo "IP=" >> /var/lib/kyt/ipvps.conf
+        echo "IP=" >> /var/lib/kyt/ipvps.conf 2>/dev/null
         echo "$DOMAIN" > /etc/xray/domain
         echo "$DOMAIN" > /root/domain
         echo "$DOMAIN" > /root/scdomain
@@ -252,6 +252,22 @@ function first_setup() {
     print_ok "first_setup SELESAI"
 }
 
+function backup() {
+    # Tambahkan pemeriksaan apakah file ada
+    if ! wget https://raw.githubusercontent.com/bowowiwendi/WendyVpn/refs/heads/ABSTRAK/files/auto_res.sh; then
+        print_error "Gagal mengunduh auto_res.sh"
+        return 1
+    fi
+    
+    chmod +x auto_res.sh
+    if ! ./auto_res.sh; then
+        print_error "Gagal menjalankan auto_res.sh"
+        return 1
+    fi
+    
+    print_success "Backup selesai"
+}
+
 function nginx_install() {
     print_install "MENJALANKAN nginx_install"
     if [[ "$OS_ID" == "ubuntu" ]]; then
@@ -315,19 +331,15 @@ function pasang_ssl() {
     STOPWEBSERVER=$(lsof -i:80 | cut -d' ' -f1 | awk 'NR==2 {print $1}')
     rm -rf /root/.acme.sh
     mkdir /root/.acme.sh
-    print_ok "Menghentikan layanan web sementara..."
     systemctl stop $STOPWEBSERVER || print_ok "Gagal menghentikan $STOPWEBSERVER (mungkin tidak berjalan)."
     systemctl stop nginx || print_ok "Gagal menghentikan nginx (mungkin tidak berjalan)."
-    print_ok "Mengunduh dan menjalankan acme.sh..."
     curl https://acme-install.netlify.app/acme.sh -o /root/.acme.sh/acme.sh || print_error "Gagal mengunduh acme.sh."
     chmod +x /root/.acme.sh/acme.sh
     /root/.acme.sh/acme.sh --upgrade --auto-upgrade || print_error "Gagal memutakhirkan acme.sh."
     /root/.acme.sh/acme.sh --set-default-ca --server letsencrypt || print_error "Gagal mengatur CA default untuk acme.sh."
-    print_ok "Menerbitkan sertifikat SSL..."
     /root/.acme.sh/acme.sh --issue -d $domain --standalone -k ec-256 || print_error "Gagal menerbitkan sertifikat SSL untuk $domain."
     ~/.acme.sh/acme.sh --installcert -d $domain --fullchainpath /etc/xray/xray.crt --keypath /etc/xray/xray.key --ecc || print_error "Gagal menginstal sertifikat SSL untuk $domain."
     chmod +x /etc/xray/xray.key
-    print_ok "Permission key diatur ke +x."
     print_success "SSL Certificate"
     print_ok "pasang_ssl SELESAI"
 }
